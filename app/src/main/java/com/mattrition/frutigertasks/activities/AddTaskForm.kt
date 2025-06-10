@@ -19,28 +19,16 @@ fun AddTaskActivity(navController: NavController) {
         var taskName by remember { mutableStateOf("") }
         var taskDesc by remember { mutableStateOf("") }
 
-        AeroTextField(
-            label = "Name",
-            value = taskName,
-            onValueChange = { taskName = it }
-        )
+        AeroTextField(label = "Name", value = taskName, onValueChange = { taskName = it })
 
-        AeroTextField(
-            label = "Description",
-            value = taskDesc,
-            onValueChange = { taskDesc = it }
-        )
+        AeroTextField(label = "Description", value = taskDesc, onValueChange = { taskDesc = it })
 
         AeroInfoButton(
             onClick = {
                 navController.popBackStack()
-                navController.currentBackStackEntry
-                    ?.savedStateHandle
-                    ?.set("task_name", taskName)
+                navController.currentBackStackEntry?.savedStateHandle?.set("task_name", taskName)
 
-                navController.currentBackStackEntry
-                    ?.savedStateHandle
-                    ?.set("task_desc", taskDesc)
+                navController.currentBackStackEntry?.savedStateHandle?.set("task_desc", taskDesc)
             },
             text = "Add"
         )
