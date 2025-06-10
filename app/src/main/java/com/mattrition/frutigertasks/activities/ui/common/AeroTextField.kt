@@ -21,14 +21,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mattrition.frutigertasks.activities.ui.theme.FrutigerTasksTheme
 
+/** A Frutiger Aero-themed text field. Properties are inherited from [TextField]. */
 @Composable
-fun AeroTextField(label: String, value: String, onValueChange: (String) -> Unit) {
+fun AeroTextField(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    readOnly: Boolean = false,
+    isError: Boolean = false,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    onValueChange: (String) -> Unit
+) {
     val shape = RoundedCornerShape(20.dp)
 
     TextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
+        readOnly = readOnly,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
+        isError = isError,
         modifier =
         Modifier.padding(5.dp)
             .shadow(elevation = 3.dp, shape = shape)
@@ -41,7 +55,8 @@ fun AeroTextField(label: String, value: String, onValueChange: (String) -> Unit)
                 ),
                 shape = shape
             )
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .then(modifier),
         shape = shape,
         singleLine = true
     )
