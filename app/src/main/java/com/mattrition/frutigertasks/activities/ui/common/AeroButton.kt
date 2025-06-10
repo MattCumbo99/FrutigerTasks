@@ -17,7 +17,12 @@ import androidx.compose.ui.unit.dp
 import com.mattrition.frutigertasks.activities.ui.theme.FrutigerTasksTheme
 
 @Composable
-fun AeroButton(text: String, colors: List<Color>, onClick: () -> Unit) {
+fun AeroButton(
+    text: String,
+    colors: List<Color>,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Button(onClick = onClick, colors = ButtonDefaults.buttonColors(Color.Transparent)) {
         Box(
             modifier =
@@ -26,6 +31,7 @@ fun AeroButton(text: String, colors: List<Color>, onClick: () -> Unit) {
                 shape = RoundedCornerShape(15.dp)
             )
                 .padding(horizontal = 20.dp, vertical = 5.dp)
+                .then(modifier)
         ) {
             Text(text = text)
         }
@@ -33,16 +39,19 @@ fun AeroButton(text: String, colors: List<Color>, onClick: () -> Unit) {
 }
 
 @Composable
-fun AeroAcceptButton(onClick: () -> Unit, text: String = "Accept") =
-    AeroButton(text, listOf(Color.LightGray, Color.Green), onClick)
+fun AeroAcceptButton(onClick: () -> Unit, modifier: Modifier = Modifier, text: String = "Accept") =
+    AeroButton(text, listOf(Color.LightGray, Color.Green), onClick, modifier)
 
 @Composable
-fun AeroDeclineButton(onClick: () -> Unit, text: String = "Decline") =
-    AeroButton(text, listOf(Color.LightGray, Color.Red), onClick)
+fun AeroDeclineButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    text: String = "Decline"
+) = AeroButton(text, listOf(Color.LightGray, Color.Red), onClick, modifier)
 
 @Composable
-fun AeroInfoButton(onClick: () -> Unit, text: String = "Info") =
-    AeroButton(text, listOf(Color.LightGray, Color.Blue), onClick)
+fun AeroInfoButton(onClick: () -> Unit, modifier: Modifier = Modifier, text: String = "Info") =
+    AeroButton(text, listOf(Color.LightGray, Color.Blue), onClick, modifier)
 
 @Composable
 @Preview(showBackground = true)
