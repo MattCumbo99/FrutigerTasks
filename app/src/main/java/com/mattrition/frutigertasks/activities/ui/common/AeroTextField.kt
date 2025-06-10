@@ -22,34 +22,23 @@ import androidx.compose.ui.unit.dp
 import com.mattrition.frutigertasks.activities.ui.theme.FrutigerTasksTheme
 
 @Composable
-fun AeroTextField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit
-) {
+fun AeroTextField(label: String, value: String, onValueChange: (String) -> Unit) {
     val shape = RoundedCornerShape(20.dp)
 
     TextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
-        modifier = Modifier
-            .padding(5.dp)
-            .shadow(
-                elevation = 3.dp,
-                shape = shape
-            )
-            .background(
-                color = Color.White,
-                shape = shape
-            )
+        modifier =
+        Modifier.padding(5.dp)
+            .shadow(elevation = 3.dp, shape = shape)
+            .background(color = Color.White, shape = shape)
             .border(
-                border = BorderStroke(6.dp, Brush.verticalGradient(
-                    colors = listOf(
-                        Color.LightGray,
-                        Color.Gray
-                    )
-                )),
+                border =
+                BorderStroke(
+                    6.dp,
+                    Brush.verticalGradient(colors = listOf(Color.LightGray, Color.Gray))
+                ),
                 shape = shape
             )
             .fillMaxWidth(),
@@ -64,10 +53,6 @@ private fun AeroTextFieldPreview() {
     FrutigerTasksTheme {
         var prompt by remember { mutableStateOf("") }
 
-        AeroTextField(
-            label = "Text Field",
-            value = prompt,
-            onValueChange = { prompt = it }
-        )
+        AeroTextField(label = "Text Field", value = prompt, onValueChange = { prompt = it })
     }
 }

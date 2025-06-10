@@ -20,21 +20,10 @@ fun MainActivity(navController: NavController, navBackStackEntry: NavBackStackEn
 
         var answer by remember { mutableStateOf("") }
 
-        AeroTextField(
-            label = "Input",
-            value = answer,
-            onValueChange = { answer = it }
-        )
+        AeroTextField(label = "Input", value = answer, onValueChange = { answer = it })
 
-        Button(onClick = {
-            navController.navigate(ScreenId.ADD_TASK.name)
-        }) {
-            Text("Add Task")
-        }
+        Button(onClick = { navController.navigate(ScreenId.ADD_TASK.name) }) { Text("Add Task") }
 
-        navBackStackEntry.savedStateHandle.get<String>("task_name")?.let {
-            Text(it)
-        }
+        navBackStackEntry.savedStateHandle.get<String>("task_name")?.let { Text(it) }
     }
 }
-

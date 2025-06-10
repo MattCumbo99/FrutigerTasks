@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.js.inline.clean.removeUnusedImports
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -66,6 +68,19 @@ dependencies {
 
 spotless {
     kotlin {
-        ktfmt()
+        target("**/*.kt")
+
+        ktfmt().googleStyle().configure {
+            it.setBlockIndent(4)
+            it.setContinuationIndent(4)
+            it.setMaxWidth(100)
+        }
+
+        ktlint().editorConfigOverride(
+            mapOf(
+                "ktlint_code_style" to "android_studio",
+                "ktlint_function_naming_ignore_when_annotated_with" to "Composable"
+            )
+        )
     }
 }
