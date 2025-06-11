@@ -11,10 +11,14 @@ import androidx.compose.ui.res.painterResource
 import com.mattrition.frutigertasks.R
 
 @Composable
-internal fun WithBackground(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+internal fun WithBackground(
+    modifier: Modifier = Modifier,
+    imageId: Int = R.drawable.aero_background,
+    content: @Composable () -> Unit
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(id = R.drawable.aero_background),
+            painter = painterResource(id = imageId),
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
             modifier = Modifier.matchParentSize() // Stretch to fill the Box

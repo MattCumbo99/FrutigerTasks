@@ -33,6 +33,8 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.mattrition.frutigertasks.activities.ui.common.AeroTextField
 import com.mattrition.frutigertasks.activities.ui.common.ScreenBuilder
+import com.mattrition.frutigertasks.extensions.get
+import com.mattrition.frutigertasks.extensions.set
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -46,18 +48,34 @@ private const val DAY_IN_MILLIS = 86400000
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O) // For using LocalDate
 @Composable
-fun DateAndRepeatsForm(navController: NavController, navBackStackEntry: NavBackStackEntry) {
+fun DateAndRepeatsActivity(navController: NavController, navBackStackEntry: NavBackStackEntry) {
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
+    val selectedDate =
+        navController.get<String>("date_start") // FIXME The date does not change after saving
+            ?: datePickerState.selectedDateMillis?.let { convertMillisToDate(it + DAY_IN_MILLIS) }
+            ?: convertMillisToDate(Date().time)
+
+    fun setValues() {
+        navController.set("date_start", selectedDate)
+    }
+
     ScreenBuilder(
         screenTitle = "Dates and repeats",
-        navigateBack = { navController.popBackStack() }
+        navigateBack = { navController.popBackStack() },
+        actions = {
+            Button(
+                onClick = {
+                    navController.popBackStack()
+
+                    setValues()
+                }
+            ) {
+                Text("Save")
+            }
+        }
     ) {
         val modifier = Modifier.fillMaxWidth()
-
-        var showDatePicker by remember { mutableStateOf(false) }
-        val datePickerState = rememberDatePickerState()
-        val selectedDate =
-            datePickerState.selectedDateMillis?.let { convertMillisToDate(it + DAY_IN_MILLIS) }
-                ?: convertMillisToDate(Date().time)
 
         Box(modifier = Modifier.fillMaxWidth()) {
             AeroTextField(

@@ -13,6 +13,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.mattrition.frutigertasks.R
 
 /**
  * The foundation of a screen.
@@ -29,6 +30,7 @@ fun ScreenBuilder(
     screenTitle: String,
     mainScreen: Boolean = false,
     navigateBack: () -> Unit = {},
+    imageId: Int = R.drawable.aero_background,
     actions: @Composable (RowScope) -> Unit = {},
     content: @Composable () -> Unit
 ) {
@@ -52,6 +54,6 @@ fun ScreenBuilder(
         }
     ) { innerPadding ->
         // Insert the screen contents
-        WithBackground(Modifier.padding(innerPadding)) { content() }
+        WithBackground(modifier = Modifier.padding(innerPadding), imageId = imageId) { content() }
     }
 }
