@@ -17,8 +17,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import com.mattrition.frutigertasks.activities.ui.theme.FrutigerTasksTheme
 
 /** A Frutiger Aero-themed text field. Properties are inherited from [TextField]. */
@@ -58,7 +60,8 @@ fun AeroTextField(
             .fillMaxWidth()
             .then(modifier),
         shape = shape,
-        singleLine = true
+        singleLine = true,
+        textStyle = TextStyle(fontSize = 4.em)
     )
 }
 
