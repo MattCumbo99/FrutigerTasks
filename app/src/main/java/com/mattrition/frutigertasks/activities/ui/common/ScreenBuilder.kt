@@ -1,5 +1,6 @@
 package com.mattrition.frutigertasks.activities.ui.common
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -16,11 +17,12 @@ import androidx.compose.ui.graphics.Color
 import com.mattrition.frutigertasks.R
 
 /**
- * The foundation of a screen.
+ * The foundation of a screen. Contents are automatically organized via [Column].
  *
  * @param screenTitle The name of the screen.
  * @param mainScreen If this screen is the first. Disables the back button.
  * @param navigateBack What happens if the user selects the back button.
+ * @param imageId Integer ID of an image from resources to set the background as.
  * @param actions Additional screen actions.
  * @param content The contents of the screen.
  */
