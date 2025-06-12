@@ -13,14 +13,8 @@
         android:theme="@style/Theme.FrutigerTasks"
         tools:targetApi="31">
         <activity
-            android:name=".activities.AddTaskActivity"
-            android:exported="false"
-            android:label="@string/title_activity_add_task"
-            android:theme="@style/Theme.FrutigerTasks" />
-        <activity
             android:name=".activities.Navigator"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.FrutigerTasks">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
