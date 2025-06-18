@@ -37,9 +37,7 @@ fun MainActivity(navController: NavController, navBackStackEntry: NavBackStackEn
         Box(
             modifier =
             Modifier.padding(10.dp)
-                .clickable {
-                    // TODO Navigate to edit user activity
-                }
+                .clickable { navController.navigate(ScreenId.EDIT_USER.name) }
                 .fillMaxWidth()
                 .background(
                     Brush.verticalGradient(

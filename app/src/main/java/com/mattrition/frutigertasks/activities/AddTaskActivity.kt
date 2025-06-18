@@ -25,21 +25,29 @@ import com.mattrition.frutigertasks.activities.ui.common.AeroTextField
 import com.mattrition.frutigertasks.activities.ui.common.ScreenBuilder
 import com.mattrition.frutigertasks.extensions.get
 import com.mattrition.frutigertasks.extensions.set
+import com.mattrition.frutigertasks.viewmodel.AddTaskViewModel
 
 @Composable
-fun AddTaskActivity(navController: NavController, navBackStackEntry: NavBackStackEntry) {
-    var taskName by remember { mutableStateOf(navController.get("task_name") ?: "") }
+fun AddTaskActivity(
+    navController: NavController,
+    navBackStackEntry: NavBackStackEntry,
+    addTaskViewModel: AddTaskViewModel
+) {
+    var taskName by remember { mutableStateOf(addTaskViewModel.name) }
 
-    var taskDesc by remember { mutableStateOf(navController.get("task_desc") ?: "") }
+    var taskDesc by remember { mutableStateOf(addTaskViewModel.description) }
 
     fun setValues() {
-        navController.set("task_name", taskName)
-        navController.set("task_desc", taskDesc)
+        addTaskViewModel.name = taskName
+        addTaskViewModel.description = taskDesc
     }
 
     ScreenBuilder(
         screenTitle = "Add Task",
-        navigateBack = { navController.popBackStack() },
+        navigateBack = {
+            addTaskViewModel.clear()
+            navController.popBackStack()
+        },
         actions = {
             Button(
                 onClick = {
