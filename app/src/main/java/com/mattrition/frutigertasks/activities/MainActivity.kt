@@ -31,47 +31,52 @@ import com.mattrition.frutigertasks.extensions.get
 @Composable
 fun MainActivity(navController: NavController, navBackStackEntry: NavBackStackEntry) {
     ScreenBuilder(screenTitle = "Frutiger Tasks", mainScreen = true) {
-        val boxShape = RoundedCornerShape(size = 15.dp)
-
-        // User's profile box
-        Box(
-            modifier =
-            Modifier.padding(10.dp)
-                .clickable { navController.navigate(ScreenId.EDIT_USER.name) }
-                .fillMaxWidth()
-                .background(
-                    Brush.verticalGradient(
-                        colors =
-                        listOf(
-                            Color.Gray,
-                            Color.LightGray,
-                            Color.White,
-                            Color.LightGray,
-                            Color.Gray
-                        )
-                    ),
-                    shape = boxShape
-                )
-                .border(3.dp, color = Color.Black, shape = boxShape)
-                .padding(10.dp)
-        ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Image(
-                    painter = painterResource(id = R.drawable.msn_guy),
-                    contentDescription = "Background"
-                )
-
-                Column {
-                    val txtSize = 4.em
-
-                    // TODO Replace this with user's name
-                    Text("MSN Clippy", fontSize = txtSize)
-                    Text("Novice", fontSize = txtSize)
-                    Text("Level 0", fontSize = txtSize)
-                }
-            }
-        }
+        UserCard(navController)
 
         Button(onClick = { navController.navigate(ScreenId.ADD_TASK.name) }) { Text("Add Task") }
+    }
+}
+
+@Composable
+private fun UserCard(navController: NavController) {
+    val boxShape = RoundedCornerShape(size = 15.dp)
+
+    // User's profile box
+    Box(
+        modifier =
+        Modifier.padding(10.dp)
+            .clickable { navController.navigate(ScreenId.EDIT_USER.name) }
+            .fillMaxWidth()
+            .background(
+                Brush.verticalGradient(
+                    colors =
+                    listOf(
+                        Color.Gray,
+                        Color.LightGray,
+                        Color.White,
+                        Color.LightGray,
+                        Color.Gray
+                    )
+                ),
+                shape = boxShape
+            )
+            .border(3.dp, color = Color.Black, shape = boxShape)
+            .padding(10.dp)
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Image(
+                painter = painterResource(id = R.drawable.msn_guy),
+                contentDescription = "Background"
+            )
+
+            Column {
+                val txtSize = 4.em
+
+                // TODO Replace this with user's name
+                Text("MSN Clippy", fontSize = txtSize)
+                Text("Novice", fontSize = txtSize)
+                Text("Level 0", fontSize = txtSize)
+            }
+        }
     }
 }

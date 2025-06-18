@@ -34,7 +34,6 @@ fun AddTaskActivity(
     addTaskViewModel: AddTaskViewModel
 ) {
     var taskName by remember { mutableStateOf(addTaskViewModel.name) }
-
     var taskDesc by remember { mutableStateOf(addTaskViewModel.description) }
 
     fun setValues() {
@@ -51,11 +50,12 @@ fun AddTaskActivity(
         actions = {
             Button(
                 onClick = {
-                    // Navigate back
-                    navController.popBackStack()
-
-                    // Send the information back to the main screen
                     setValues()
+                    if (addTaskViewModel.isValid()) {
+                        // TODO Save all task information to internal storage
+                        // Navigate back
+                        navController.popBackStack()
+                    }
                 }
             ) {
                 Text("Save")
@@ -75,7 +75,7 @@ fun AddTaskActivity(
 
         @Composable fun BoxText(text: String) = Text(text, fontSize = 4.em)
 
-        val startDate = remember { navController.get<String>("date_start") ?: "Today" }
+        val startDate = remember { convertMillisToDate(addTaskViewModel.startDate) }
 
         // Date and repeats
         Box(
@@ -85,12 +85,11 @@ fun AddTaskActivity(
                 setValues()
 
                 navController.navigate(ScreenId.DATE_AND_REPEATS.name)
-
-                if (startDate != "Today") navController.set("date_start", startDate)
             }
         ) {
             Column {
                 BoxText("Start date: $startDate")
+                // TODO Save repeat information
                 BoxText("Do not repeat")
                 BoxText("Do not notify")
             }

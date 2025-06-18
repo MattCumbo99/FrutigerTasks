@@ -39,7 +39,7 @@ class Navigator : ComponentActivity() {
                     composable(ScreenId.EDIT_USER.name) { EditUserActivity(navController) }
 
                     composable(ScreenId.DATE_AND_REPEATS.name) {
-                        DateAndRepeatsActivity(navController, it)
+                        DateAndRepeatsActivity(navController, it, addTaskViewModel)
                     }
                 }
             }
