@@ -23,9 +23,9 @@ import java.util.Date
 class Schedule(
     var startDate: Long = Date().time,
     var dailyRepeat: Int? = null,
-    val onDaysOfWeek: MutableSet<DayOfWeek> = mutableSetOf(),
+    var onDaysOfWeek: Set<DayOfWeek> = emptySet(),
     var onDayOfMonth: Int? = null,
-    val onDaysOfYear: MutableSet<Long> = mutableSetOf(),
+    var onDaysOfYear: Set<Long> = emptySet(),
     var endDate: Long? = null
 ) {
     /**
@@ -51,8 +51,8 @@ class Schedule(
                 endCalendar.removeTime()
 
                 // Check if the date is still within this schedule's end date
-                endCalendar.time.time >= currentCalendar.time.time
-            } == true
+                endCalendar.timeInMillis >= currentCalendar.timeInMillis
+            } == true || endDate == null
 
         val daysOfYear =
             onDaysOfYear.map { time ->
@@ -67,6 +67,7 @@ class Schedule(
 
         // Conditionals
         val isInitialDay = startCalendar.compareTo(currentCalendar) == 0
+        val hasStarted = startCalendar < currentCalendar
         val isOnDayOfYear = daysOfYear.any { it.compareTo(currentCalendar) == 0 }
 
         val daysBetween =
@@ -77,6 +78,7 @@ class Schedule(
         val currentDayOfMonth = currentCalendar.get(Calendar.DAY_OF_MONTH)
 
         return hasNotEnded &&
+            hasStarted &&
             (
                 isInitialDay ||
                     currentDayOfWeek in onDaysOfWeek ||
