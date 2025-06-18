@@ -3,10 +3,12 @@ package com.mattrition.frutigertasks.model.scheduler
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.mattrition.frutigertasks.extensions.removeTime
+import java.text.SimpleDateFormat
 import java.time.DayOfWeek
 import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 
 /**
  * Represents a timer to trigger an object.
@@ -28,6 +30,21 @@ class Schedule(
     var onDaysOfYear: Set<Long> = emptySet(),
     var endDate: Long? = null
 ) {
+    companion object {
+        @RequiresApi(Build.VERSION_CODES.O)
+        val WEEKDAYS =
+            setOf(
+                DayOfWeek.MONDAY,
+                DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
+                DayOfWeek.FRIDAY
+            )
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        val WEEKENDS = setOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
+    }
+
     /**
      * Checks if this schedule is active on the specified date (or today).
      *
@@ -52,7 +69,8 @@ class Schedule(
 
                 // Check if the date is still within this schedule's end date
                 endCalendar.timeInMillis >= currentCalendar.timeInMillis
-            } == true || endDate == null
+            } == true ||
+                endDate == null
 
         val daysOfYear =
             onDaysOfYear.map { time ->
@@ -86,6 +104,41 @@ class Schedule(
                     isOnDayOfYear ||
                     isOnRepeatDay
                 )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun toString(): String {
+        val repeatParams = mutableListOf<String>()
+        dailyRepeat?.let { days ->
+            repeatParams.add(
+                when (days) {
+                    1 -> "daily"
+                    else -> "every $days days"
+                }
+            )
+        }
+
+        if (onDaysOfWeek.isNotEmpty()) {
+            repeatParams.add(onDaysOfWeek.joinToString("; ") { it.name })
+        }
+
+        onDayOfMonth?.let { repeatParams.add("on day $it of the month") }
+
+        if (onDaysOfYear.isNotEmpty()) {
+            val yearDays =
+                onDaysOfYear.joinToString("; ") {
+                    val formatter = SimpleDateFormat("MMM d", Locale.getDefault())
+                    formatter.format(Date(it))
+                }
+
+            repeatParams.add("yearly on $yearDays")
+        }
+
+        return if (repeatParams.isEmpty()) {
+            "Does not repeat"
+        } else {
+            "Repeats ${repeatParams.joinToString(", ")}"
+        }
     }
 }
 

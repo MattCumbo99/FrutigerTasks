@@ -33,14 +33,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import com.mattrition.frutigertasks.activities.ui.common.AeroCheckmarkButton
 import com.mattrition.frutigertasks.activities.ui.common.AeroTextField
 import com.mattrition.frutigertasks.activities.ui.common.ScreenBuilder
-import com.mattrition.frutigertasks.model.scheduler.RepeatableTime
+import com.mattrition.frutigertasks.model.scheduler.Schedule
 import com.mattrition.frutigertasks.viewmodel.AddTaskViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 
 private const val DAY_IN_MILLIS = 86400000
 
@@ -61,30 +61,28 @@ fun DateAndRepeatsActivity(
             // For some reason, the date picker selects a day before what the user selected,
             // so we need to add a whole day in milliseconds.
             it + DAY_IN_MILLIS
-        } ?: addTaskViewModel.startDate
+        } ?: addTaskViewModel.schedule.startDate
 
     fun setValues() {
-        addTaskViewModel.startDate = selectedDate
-        addTaskViewModel.repeats = repeatOptionsMap[repeatOptions[repeatSelected]]
+        val mappedSchedule = repeatOptionsMap[repeatOptions[repeatSelected]]
+        mappedSchedule?.let { addTaskViewModel.schedule = it }
+
+        addTaskViewModel.schedule.startDate = selectedDate
     }
 
     ScreenBuilder(
         screenTitle = "Dates and repeats",
         navigateBack = { navController.popBackStack() },
         actions = {
-            Button(
-                onClick = {
-                    navController.popBackStack()
-
-                    setValues()
-                }
-            ) {
-                Text("Save")
+            AeroCheckmarkButton {
+                navController.popBackStack()
+                setValues()
             }
         }
     ) {
         val modifier = Modifier.fillMaxWidth()
 
+        // TODO Allow the user to set the date by clicking the text box as well
         Box(modifier = Modifier.fillMaxWidth()) {
             AeroTextField(
                 value = convertMillisToDate(selectedDate),
@@ -124,7 +122,8 @@ fun DateAndRepeatsActivity(
             onClick = {
                 // TODO Show time picker
             },
-            modifier = modifier
+            modifier = modifier,
+            enabled = false
         ) {
             Text("Time: 12:00am")
         }
@@ -161,16 +160,21 @@ fun DateAndRepeatsActivity(
 
         // Repeat configuration
         Button(onClick = { repeatDialogBuilder.show() }, modifier = modifier) {
-            Text(repeatOptions[repeatSelected])
+            Text(repeatOptionsMap[repeatOptions[repeatSelected]].toString())
         }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 private val repeatOptionsMap =
     mapOf(
-        "Do not repeat" to null,
-        "Daily" to RepeatableTime(TimeUnit.DAYS, 1),
-        "Weekly" to RepeatableTime(TimeUnit.DAYS, 7)
+        "Do not repeat" to Schedule(),
+        "Daily" to Schedule(dailyRepeat = 1),
+        "Weekly" to Schedule(dailyRepeat = 7),
+        "Weekdays" to Schedule(onDaysOfWeek = Schedule.WEEKDAYS),
+        "Weekends" to Schedule(onDaysOfWeek = Schedule.WEEKENDS),
+        "1st day of month" to Schedule(onDayOfMonth = 1),
+        "Yearly" to Schedule(onDaysOfYear = setOf(Date().time))
     )
 
 private val reminderOptions =
@@ -182,7 +186,8 @@ private val repeatOptions =
         "Daily",
         "Weekly",
         "Weekdays",
-        "Monthly",
+        "Weekends",
+        "1st day of the month",
         "Yearly",
         "Specific days of week",
         "Custom..."

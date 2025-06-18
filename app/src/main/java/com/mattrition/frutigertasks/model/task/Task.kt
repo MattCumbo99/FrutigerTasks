@@ -16,7 +16,7 @@ data class Task(
     val name: String,
     val description: String = "",
     val schedule: Schedule = Schedule(),
-    val difficultyScale: Double = Difficulty.EASY.percentage,
+    val difficultyScale: Double = Difficulty.Easy.percentage,
     val subTasks: MutableList<SubTask> = mutableListOf(),
     val categories: MutableSet<String> = mutableSetOf()
 )
