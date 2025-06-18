@@ -1,7 +1,7 @@
 package com.mattrition.frutigertasks.activities
 
+import android.app.AlertDialog
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -21,65 +21,71 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import com.mattrition.frutigertasks.activities.ui.common.AeroCheckmarkButton
 import com.mattrition.frutigertasks.activities.ui.common.AeroTextField
 import com.mattrition.frutigertasks.activities.ui.common.ScreenBuilder
-import com.mattrition.frutigertasks.extensions.get
-import com.mattrition.frutigertasks.extensions.set
+import com.mattrition.frutigertasks.model.scheduler.Schedule
+import com.mattrition.frutigertasks.viewmodel.AddTaskViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-/*
- * For some reason, the date picker selects a day before what the user selected,
- * so we need to add a whole day in milliseconds.
- */
 private const val DAY_IN_MILLIS = 86400000
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O) // For using LocalDate
 @Composable
-fun DateAndRepeatsActivity(navController: NavController, navBackStackEntry: NavBackStackEntry) {
+fun DateAndRepeatsActivity(
+    navController: NavController,
+    navBackStackEntry: NavBackStackEntry,
+    addTaskViewModel: AddTaskViewModel
+) {
     var showDatePicker by remember { mutableStateOf(false) }
+    var repeatSelected by remember { mutableIntStateOf(0) }
+
     val datePickerState = rememberDatePickerState()
     val selectedDate =
-        navController.get<String>("date_start") // FIXME The date does not change after saving
-            ?: datePickerState.selectedDateMillis?.let { convertMillisToDate(it + DAY_IN_MILLIS) }
-            ?: convertMillisToDate(Date().time)
+        datePickerState.selectedDateMillis?.let {
+            // For some reason, the date picker selects a day before what the user selected,
+            // so we need to add a whole day in milliseconds.
+            it + DAY_IN_MILLIS
+        } ?: addTaskViewModel.schedule.startDate
 
     fun setValues() {
-        navController.set("date_start", selectedDate)
+        val mappedSchedule = repeatOptionsMap[repeatOptions[repeatSelected]]
+        mappedSchedule?.let { addTaskViewModel.schedule = it }
+
+        addTaskViewModel.schedule.startDate = selectedDate
     }
 
     ScreenBuilder(
         screenTitle = "Dates and repeats",
         navigateBack = { navController.popBackStack() },
         actions = {
-            Button(
-                onClick = {
-                    navController.popBackStack()
-
-                    setValues()
-                }
-            ) {
-                Text("Save")
+            AeroCheckmarkButton {
+                navController.popBackStack()
+                setValues()
             }
         }
     ) {
         val modifier = Modifier.fillMaxWidth()
 
+        // TODO Allow the user to set the date by clicking the text box as well
         Box(modifier = Modifier.fillMaxWidth()) {
             AeroTextField(
-                value = selectedDate,
+                value = convertMillisToDate(selectedDate),
                 label = "Start Date",
                 readOnly = true,
                 leadingIcon = {
@@ -116,36 +122,79 @@ fun DateAndRepeatsActivity(navController: NavController, navBackStackEntry: NavB
             onClick = {
                 // TODO Show time picker
             },
-            modifier = modifier
+            modifier = modifier,
+            enabled = false
         ) {
             Text("Time: 12:00am")
         }
 
-        Button(
-            onClick = {
-                // TODO Show pop-up of repeatable options
-            },
-            modifier = modifier
-        ) {
-            Text("Do not repeat")
+        val reminderDialogBuilder =
+            AlertDialog.Builder(LocalContext.current)
+                .setTitle("Reminder")
+                .setPositiveButton("OK") { dialog, which ->
+                    // TODO Save selected options
+                    dialog.cancel()
+                }
+                .setMultiChoiceItems(reminderOptions, null) { dialog, which, isChecked ->
+                    // TODO Save selected options
+                }
+                .create()
+
+        // Reminder dialog button
+        Button(onClick = { reminderDialogBuilder.show() }, modifier = modifier) {
+            Text("Add reminder")
+        }
+
+        val repeatDialogBuilder =
+            AlertDialog.Builder(LocalContext.current)
+                .setTitle("Repeat mode")
+                .setPositiveButton("CANCEL") { dialog, which -> dialog.cancel() }
+                .setSingleChoiceItems(repeatOptionsMap.keys.toTypedArray(), repeatSelected) {
+                        dialog,
+                        which
+                    ->
+                    repeatSelected = which
+                    dialog.cancel()
+                }
+                .create()
+
+        // Repeat configuration
+        Button(onClick = { repeatDialogBuilder.show() }, modifier = modifier) {
+            Text(repeatOptionsMap[repeatOptions[repeatSelected]].toString())
         }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+private val repeatOptionsMap =
+    mapOf(
+        "Do not repeat" to Schedule(),
+        "Daily" to Schedule(dailyRepeat = 1),
+        "Weekly" to Schedule(dailyRepeat = 7),
+        "Weekdays" to Schedule(onDaysOfWeek = Schedule.WEEKDAYS),
+        "Weekends" to Schedule(onDaysOfWeek = Schedule.WEEKENDS),
+        "1st day of month" to Schedule(onDayOfMonth = 1),
+        "Yearly" to Schedule(onDaysOfYear = setOf(Date().time))
+    )
+
+private val reminderOptions =
+    arrayOf("On time", "1 minute before", "10 minutes before", "1 hour before", "1 day before")
+
 private val repeatOptions =
-    listOf(
+    arrayOf(
         "Do not repeat",
         "Daily",
         "Weekly",
         "Weekdays",
-        "Monthly",
+        "Weekends",
+        "1st day of the month",
         "Yearly",
         "Specific days of week",
         "Custom..."
     )
 
-private fun convertMillisToDate(millis: Long): String {
+fun convertMillisToDate(millis: Long): String {
     val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
-    Log.w("DEBUG", "Millis: $millis, TimeZone: ${formatter.timeZone}")
+
     return formatter.format(Date(millis))
 }

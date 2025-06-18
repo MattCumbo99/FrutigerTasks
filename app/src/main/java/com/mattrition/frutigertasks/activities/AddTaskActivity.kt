@@ -1,5 +1,6 @@
 package com.mattrition.frutigertasks.activities
 
+import android.app.AlertDialog
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,42 +13,52 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.mattrition.frutigertasks.activities.ui.common.AeroTextField
 import com.mattrition.frutigertasks.activities.ui.common.ScreenBuilder
-import com.mattrition.frutigertasks.extensions.get
-import com.mattrition.frutigertasks.extensions.set
+import com.mattrition.frutigertasks.model.task.Difficulty
+import com.mattrition.frutigertasks.viewmodel.AddTaskViewModel
 
 @Composable
-fun AddTaskActivity(navController: NavController, navBackStackEntry: NavBackStackEntry) {
-    var taskName by remember { mutableStateOf(navController.get("task_name") ?: "") }
-
-    var taskDesc by remember { mutableStateOf(navController.get("task_desc") ?: "") }
+fun AddTaskActivity(
+    navController: NavController,
+    navBackStackEntry: NavBackStackEntry,
+    addTaskViewModel: AddTaskViewModel
+) {
+    var taskName by remember { mutableStateOf(addTaskViewModel.name) }
+    var taskDesc by remember { mutableStateOf(addTaskViewModel.description) }
+    var difficultySelection by remember { mutableIntStateOf(1) }
 
     fun setValues() {
-        navController.set("task_name", taskName)
-        navController.set("task_desc", taskDesc)
+        addTaskViewModel.name = taskName
+        addTaskViewModel.description = taskDesc
     }
 
     ScreenBuilder(
         screenTitle = "Add Task",
-        navigateBack = { navController.popBackStack() },
+        navigateBack = {
+            addTaskViewModel.clear()
+            navController.popBackStack()
+        },
         actions = {
             Button(
                 onClick = {
-                    // Navigate back
-                    navController.popBackStack()
-
-                    // Send the information back to the main screen
                     setValues()
+                    if (addTaskViewModel.isValid()) {
+                        // TODO Save all task information to internal storage
+                        // Navigate back
+                        navController.popBackStack()
+                    }
                 }
             ) {
                 Text("Save")
@@ -67,7 +78,7 @@ fun AddTaskActivity(navController: NavController, navBackStackEntry: NavBackStac
 
         @Composable fun BoxText(text: String) = Text(text, fontSize = 4.em)
 
-        val startDate = remember { navController.get<String>("date_start") ?: "Today" }
+        val startDate = remember { convertMillisToDate(addTaskViewModel.schedule.startDate) }
 
         // Date and repeats
         Box(
@@ -77,24 +88,32 @@ fun AddTaskActivity(navController: NavController, navBackStackEntry: NavBackStac
                 setValues()
 
                 navController.navigate(ScreenId.DATE_AND_REPEATS.name)
-
-                if (startDate != "Today") navController.set("date_start", startDate)
             }
         ) {
             Column {
                 BoxText("Start date: $startDate")
+                // TODO Save repeat information
                 BoxText("Do not repeat")
                 BoxText("Do not notify")
             }
         }
 
-        Button(
-            onClick = {
-                // TODO Display dialog box with difficulty options
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Difficulty: Easy")
+        // Difficulty dialog display
+        val difficultyDialogBuilder =
+            AlertDialog.Builder(LocalContext.current)
+                .setTitle("Difficulty")
+                .setPositiveButton("CANCEL") { dialog, which -> dialog.cancel() }
+                .setSingleChoiceItems(
+                    Difficulty.entries.map { it.name }.toTypedArray(),
+                    difficultySelection
+                ) { dialog, which ->
+                    difficultySelection = which
+                    dialog.cancel()
+                }
+                .create()
+
+        Button(onClick = { difficultyDialogBuilder.show() }, modifier = Modifier.fillMaxWidth()) {
+            Text("Difficulty: ${Difficulty.entries[difficultySelection].name}")
         }
 
         Box(
