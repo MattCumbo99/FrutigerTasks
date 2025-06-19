@@ -1,6 +1,8 @@
 package com.mattrition.frutigertasks.activities
 
 import android.app.AlertDialog
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,6 +31,7 @@ import com.mattrition.frutigertasks.activities.ui.common.ScreenBuilder
 import com.mattrition.frutigertasks.model.task.Difficulty
 import com.mattrition.frutigertasks.viewmodel.AddTaskViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AddTaskActivity(
     navController: NavController,
@@ -78,7 +81,7 @@ fun AddTaskActivity(
 
         @Composable fun BoxText(text: String) = Text(text, fontSize = 4.em)
 
-        val startDate = remember { convertMillisToDate(addTaskViewModel.schedule.startDate) }
+        val startDate = convertMillisToDate(addTaskViewModel.schedule.startDate)
 
         // Date and repeats
         Box(
@@ -93,7 +96,7 @@ fun AddTaskActivity(
             Column {
                 BoxText("Start date: $startDate")
                 // TODO Save repeat information
-                BoxText("Do not repeat")
+                BoxText(addTaskViewModel.schedule.toString())
                 BoxText("Do not notify")
             }
         }

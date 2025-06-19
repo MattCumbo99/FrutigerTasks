@@ -3,6 +3,7 @@ package com.mattrition.frutigertasks.model.scheduler
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.mattrition.frutigertasks.extensions.removeTime
+import com.mattrition.frutigertasks.extensions.sentenceCase
 import java.text.SimpleDateFormat
 import java.time.DayOfWeek
 import java.time.temporal.ChronoUnit
@@ -69,8 +70,7 @@ class Schedule(
 
                 // Check if the date is still within this schedule's end date
                 endCalendar.timeInMillis >= currentCalendar.timeInMillis
-            } == true ||
-                endDate == null
+            } == true || endDate == null
 
         val daysOfYear =
             onDaysOfYear.map { time ->
@@ -113,13 +113,25 @@ class Schedule(
             repeatParams.add(
                 when (days) {
                     1 -> "daily"
+                    7 -> {
+                        val tempCal = Calendar.getInstance()
+                        tempCal.time = Date(startDate)
+                        tempCal.removeTime()
+
+                        val day = tempCal.get(Calendar.DAY_OF_WEEK).adjustedDay()
+
+                        "on ${day.name.sentenceCase()}s"
+                    }
                     else -> "every $days days"
                 }
             )
         }
 
         if (onDaysOfWeek.isNotEmpty()) {
-            repeatParams.add(onDaysOfWeek.joinToString("; ") { it.name })
+            val daysInWeek =
+                onDaysOfWeek.joinToString(", ") { dayEnum -> "${dayEnum.name}s".sentenceCase() }
+
+            repeatParams.add("on $daysInWeek")
         }
 
         onDayOfMonth?.let { repeatParams.add("on day $it of the month") }

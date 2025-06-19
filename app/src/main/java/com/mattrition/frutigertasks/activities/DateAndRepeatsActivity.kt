@@ -17,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
@@ -39,6 +40,7 @@ import com.mattrition.frutigertasks.activities.ui.common.ScreenBuilder
 import com.mattrition.frutigertasks.model.scheduler.Schedule
 import com.mattrition.frutigertasks.viewmodel.AddTaskViewModel
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -60,6 +62,7 @@ fun DateAndRepeatsActivity(
         datePickerState.selectedDateMillis?.let {
             // For some reason, the date picker selects a day before what the user selected,
             // so we need to add a whole day in milliseconds.
+            // FIXME Somehow convert these milliseconds into the correct time
             it + DAY_IN_MILLIS
         } ?: addTaskViewModel.schedule.startDate
 
@@ -187,7 +190,7 @@ private val repeatOptions =
         "Weekly",
         "Weekdays",
         "Weekends",
-        "1st day of the month",
+        "1st day of month",
         "Yearly",
         "Specific days of week",
         "Custom..."
@@ -197,4 +200,19 @@ fun convertMillisToDate(millis: Long): String {
     val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
 
     return formatter.format(Date(millis))
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+private object PresentAndFutureDates : SelectableDates {
+
+    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+        // TODO disable past days
+        return super.isSelectableDate(utcTimeMillis)
+    }
+
+    override fun isSelectableYear(year: Int): Boolean {
+        val cal = Calendar.getInstance()
+
+        return cal.get(Calendar.YEAR) >= year
+    }
 }
