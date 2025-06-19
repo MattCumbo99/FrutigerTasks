@@ -1,0 +1,278 @@
+[
+  {
+    "id": "1",
+    "name": "Cleaning",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "11",
+        "amount": 0.2
+      }
+    ]
+  },
+  {
+    "id": "2",
+    "name": "Communication",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "2",
+        "amount": 1.0
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "name": "Cooking",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "4",
+        "amount": 0.25
+      },
+      {
+        "statId": "6",
+        "amount": 0.5
+      },
+      {
+        "statId": "13",
+        "amount": 0.75
+      }
+    ]
+  },
+  {
+    "id": "4",
+    "name": "Discipline",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "11",
+        "amount": 1.0
+      }
+    ]
+  },
+  {
+    "id": "5",
+    "name": "Drawing",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "1",
+        "amount": 1.0
+      }
+    ]
+  },
+  {
+    "id": "6",
+    "name": "Erudition",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "12",
+        "amount": 1.0
+      }
+    ]
+  },
+  {
+    "id": "7",
+    "name": "Fitness",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "4",
+        "amount": 0.2
+      },
+      {
+        "statId": "9",
+        "amount": 0.8
+      },
+      {
+        "statId": "3",
+        "amount": 0.7
+      }
+    ]
+  },
+  {
+    "id": "8",
+    "name": "Foreign language",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "5",
+        "amount": 1.0
+      }
+    ]
+  },
+  {
+    "id": "9",
+    "name": "Hygiene",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "4",
+        "amount": 1.0
+      },
+      {
+        "statId": "2",
+        "amount": 0.1
+      }
+    ]
+  },
+  {
+    "id": "10",
+    "name": "Learning",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "8",
+        "amount": 1.0
+      }
+    ]
+  },
+  {
+    "id": "11",
+    "name": "Math",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "5",
+        "amount": 1.0
+      }
+    ]
+  },
+  {
+    "id": "12",
+    "name": "Meditation",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "4",
+        "amount": 0.4
+      },
+      {
+        "statId": "11",
+        "amount": 0.75
+      }
+    ]
+  },
+  {
+    "id": "13",
+    "name": "Music",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "1",
+        "amount": 1.0
+      },
+      {
+        "statId": "7",
+        "amount": 0.25
+      }
+    ]
+  },
+  {
+    "id": "14",
+    "name": "Productivity",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "8",
+        "amount": 1.0
+      }
+    ]
+  },
+  {
+    "id": "15",
+    "name": "Programming",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "5",
+        "amount": 1.0
+      },
+      {
+        "statId": "7",
+        "amount": 0.25
+      }
+    ]
+  },
+  {
+    "id": "16",
+    "name": "Reading",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "5",
+        "amount": 0.5
+      },
+      {
+        "statId": "12",
+        "amount": 0.75
+      },
+      {
+        "statId": "7",
+        "amount": 0.25
+      }
+    ]
+  },
+  {
+    "id": "17",
+    "name": "Running",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "9",
+        "amount": 1.0
+      }
+    ]
+  },
+  {
+    "id": "18",
+    "name": "Swimming",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "4",
+        "amount": 0.4
+      },
+      {
+        "statId": "10",
+        "amount": 0.15
+      },
+      {
+        "statId": "9",
+        "amount": 1.0
+      }
+    ]
+  },
+  {
+    "id": "19",
+    "name": "Workout",
+    "description": "",
+    "icon": "",
+    "statsImpacted": [
+      {
+        "statId": "10",
+        "amount": 1.0
+      }
+    ]
+  }
+]
