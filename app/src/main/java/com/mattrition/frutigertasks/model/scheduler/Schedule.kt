@@ -2,18 +2,22 @@ package com.mattrition.frutigertasks.model.scheduler
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.mattrition.frutigertasks.extensions.asDate
+import com.mattrition.frutigertasks.extensions.fromDateToMillis
 import com.mattrition.frutigertasks.extensions.removeTime
+import com.mattrition.frutigertasks.extensions.sentenceCase
 import java.text.SimpleDateFormat
 import java.time.DayOfWeek
 import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 /**
  * Represents a timer to trigger an object.
  *
- * @property startDate Starting date of the schedule in milliseconds.
+ * @property startDate Starting date of the schedule formatted as `MM/dd/yyyy HH:mm:ss z`.
  * @property dailyRepeat The amount of days until the schedule should repeat.
  * @property onDaysOfWeek A set containing weekdays that this schedule should trigger on.
  * @property onDayOfMonth Integer value containing the day of the month this schedule should trigger
@@ -23,12 +27,12 @@ import java.util.Locale
  * @property endDate Date to stop the schedule at.
  */
 class Schedule(
-    var startDate: Long = Date().time,
+    var startDate: String = Date().time.asDate(timeZone = TimeZone.getDefault()),
     var dailyRepeat: Int? = null,
     var onDaysOfWeek: Set<DayOfWeek> = emptySet(),
     var onDayOfMonth: Int? = null,
-    var onDaysOfYear: Set<Long> = emptySet(),
-    var endDate: Long? = null
+    var onDaysOfYear: Set<String> = emptySet(),
+    var endDate: String? = null
 ) {
     companion object {
         @RequiresApi(Build.VERSION_CODES.O)
@@ -48,34 +52,37 @@ class Schedule(
     /**
      * Checks if this schedule is active on the specified date (or today).
      *
-     * @param onDate Date to check if this schedule is active on.
+     * @param onDate Date to check the schedule against.
+     * @param againstTimeZone The timezone to check the date against
      * @return true if the schedule would trigger on the date.
      */
     @RequiresApi(Build.VERSION_CODES.O)
-    fun isActive(onDate: Date = Date()): Boolean {
-        val startCalendar = Calendar.getInstance()
-        startCalendar.time = Date(startDate)
+    fun isActive(
+        onDate: String = Date().time.asDate(timeZone = TimeZone.getDefault()),
+        againstTimeZone: TimeZone = TimeZone.getDefault()
+    ): Boolean {
+        val startCalendar = Calendar.getInstance(againstTimeZone)
+        startCalendar.time = Date(startDate.fromDateToMillis())
         startCalendar.removeTime()
 
-        val currentCalendar = Calendar.getInstance()
-        currentCalendar.time = onDate
+        val currentCalendar = Calendar.getInstance(againstTimeZone)
+        currentCalendar.time = Date(onDate.fromDateToMillis())
         currentCalendar.removeTime()
 
         val hasNotEnded =
             endDate?.let {
-                val endCalendar = Calendar.getInstance()
-                endCalendar.time = Date(it)
+                val endCalendar = Calendar.getInstance(againstTimeZone)
+                endCalendar.time = Date(it.fromDateToMillis())
                 endCalendar.removeTime()
 
                 // Check if the date is still within this schedule's end date
                 endCalendar.timeInMillis >= currentCalendar.timeInMillis
-            } == true ||
-                endDate == null
+            } == true || endDate == null
 
         val daysOfYear =
             onDaysOfYear.map { time ->
-                val calendar = Calendar.getInstance()
-                calendar.time = Date(time)
+                val calendar = Calendar.getInstance(againstTimeZone)
+                calendar.time = Date(time.fromDateToMillis())
                 // Set each date to the current date's year
                 calendar.set(Calendar.YEAR, currentCalendar.get(Calendar.YEAR))
                 calendar.removeTime()
@@ -107,19 +114,31 @@ class Schedule(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun toString(): String {
+    fun asRepeatString(): String {
         val repeatParams = mutableListOf<String>()
         dailyRepeat?.let { days ->
             repeatParams.add(
                 when (days) {
                     1 -> "daily"
+                    7 -> {
+                        val tempCal = Calendar.getInstance()
+                        tempCal.time = Date(startDate.fromDateToMillis())
+                        tempCal.removeTime()
+
+                        val day = tempCal.get(Calendar.DAY_OF_WEEK).adjustedDay()
+
+                        "on ${day.name.sentenceCase()}s"
+                    }
                     else -> "every $days days"
                 }
             )
         }
 
         if (onDaysOfWeek.isNotEmpty()) {
-            repeatParams.add(onDaysOfWeek.joinToString("; ") { it.name })
+            val daysInWeek =
+                onDaysOfWeek.joinToString(", ") { dayEnum -> "${dayEnum.name}s".sentenceCase() }
+
+            repeatParams.add("on $daysInWeek")
         }
 
         onDayOfMonth?.let { repeatParams.add("on day $it of the month") }
@@ -128,7 +147,7 @@ class Schedule(
             val yearDays =
                 onDaysOfYear.joinToString("; ") {
                     val formatter = SimpleDateFormat("MMM d", Locale.getDefault())
-                    formatter.format(Date(it))
+                    formatter.format(Date(it.fromDateToMillis()))
                 }
 
             repeatParams.add("yearly on $yearDays")

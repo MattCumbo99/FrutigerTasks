@@ -1,0 +1,80 @@
+[
+  {
+    "id": "1",
+    "name": "Art",
+    "description": "",
+    "icon": ""
+  },
+  {
+    "id": "2",
+    "name": "Charisma",
+    "description": "",
+    "icon": ""
+  },
+  {
+    "id": "3",
+    "name": "Dexterity",
+    "description": "",
+    "icon": ""
+  },
+  {
+    "id": "4",
+    "name": "Health",
+    "description": "",
+    "icon": ""
+  },
+  {
+    "id": "5",
+    "name": "Intelligence",
+    "description": "",
+    "icon": ""
+  },
+  {
+    "id": "6",
+    "name": "Memory",
+    "description": "",
+    "icon": ""
+  },
+  {
+    "id": "7",
+    "name": "Perception",
+    "description": "",
+    "icon": ""
+  },
+  {
+    "id": "8",
+    "name": "Personal growth",
+    "description": "",
+    "icon": ""
+  },
+  {
+    "id": "9",
+    "name": "Stamina",
+    "description": "",
+    "icon": ""
+  },
+  {
+    "id": "10",
+    "name": "Strength",
+    "description": "",
+    "icon": ""
+  },
+  {
+    "id": "11",
+    "name": "Willpower",
+    "description": "",
+    "icon": ""
+  },
+  {
+    "id": "12",
+    "name": "Wisdom",
+    "description": "",
+    "icon": ""
+  },
+  {
+    "id": "13",
+    "name": "Workmanship",
+    "description": "",
+    "icon": ""
+  }
+]

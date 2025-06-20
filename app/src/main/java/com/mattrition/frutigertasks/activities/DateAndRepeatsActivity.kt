@@ -17,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
@@ -36,11 +37,14 @@ import androidx.navigation.NavController
 import com.mattrition.frutigertasks.activities.ui.common.AeroCheckmarkButton
 import com.mattrition.frutigertasks.activities.ui.common.AeroTextField
 import com.mattrition.frutigertasks.activities.ui.common.ScreenBuilder
+import com.mattrition.frutigertasks.extensions.asDate
+import com.mattrition.frutigertasks.extensions.fromDateToMillis
+import com.mattrition.frutigertasks.extensions.reformatDate
 import com.mattrition.frutigertasks.model.scheduler.Schedule
 import com.mattrition.frutigertasks.viewmodel.AddTaskViewModel
-import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
-import java.util.Locale
+import java.util.TimeZone
 
 private const val DAY_IN_MILLIS = 86400000
 
@@ -55,13 +59,15 @@ fun DateAndRepeatsActivity(
     var showDatePicker by remember { mutableStateOf(false) }
     var repeatSelected by remember { mutableIntStateOf(0) }
 
-    val datePickerState = rememberDatePickerState()
-    val selectedDate =
-        datePickerState.selectedDateMillis?.let {
-            // For some reason, the date picker selects a day before what the user selected,
-            // so we need to add a whole day in milliseconds.
-            it + DAY_IN_MILLIS
-        } ?: addTaskViewModel.schedule.startDate
+    val startDate = addTaskViewModel.schedule.startDate
+
+    val datePickerState =
+        rememberDatePickerState(
+            initialSelectedDateMillis = startDate.fromDateToMillis(),
+            selectableDates = PresentAndFutureDates
+        )
+
+    val selectedDate = datePickerState.selectedDateMillis?.asDate() ?: startDate
 
     fun setValues() {
         val mappedSchedule = repeatOptionsMap[repeatOptions[repeatSelected]]
@@ -85,7 +91,8 @@ fun DateAndRepeatsActivity(
         // TODO Allow the user to set the date by clicking the text box as well
         Box(modifier = Modifier.fillMaxWidth()) {
             AeroTextField(
-                value = convertMillisToDate(selectedDate),
+                value =
+                selectedDate.reformatDate("MM/dd/yyyy", timeZone = TimeZone.getTimeZone("UTC")),
                 label = "Start Date",
                 readOnly = true,
                 leadingIcon = {
@@ -160,7 +167,7 @@ fun DateAndRepeatsActivity(
 
         // Repeat configuration
         Button(onClick = { repeatDialogBuilder.show() }, modifier = modifier) {
-            Text(repeatOptionsMap[repeatOptions[repeatSelected]].toString())
+            Text(repeatOptionsMap[repeatOptions[repeatSelected]]?.asRepeatString() ?: "null")
         }
     }
 }
@@ -174,7 +181,7 @@ private val repeatOptionsMap =
         "Weekdays" to Schedule(onDaysOfWeek = Schedule.WEEKDAYS),
         "Weekends" to Schedule(onDaysOfWeek = Schedule.WEEKENDS),
         "1st day of month" to Schedule(onDayOfMonth = 1),
-        "Yearly" to Schedule(onDaysOfYear = setOf(Date().time))
+        "Yearly" to Schedule(onDaysOfYear = setOf(Date().time.asDate()))
     )
 
 private val reminderOptions =
@@ -187,14 +194,21 @@ private val repeatOptions =
         "Weekly",
         "Weekdays",
         "Weekends",
-        "1st day of the month",
+        "1st day of month",
         "Yearly",
         "Specific days of week",
         "Custom..."
     )
 
-fun convertMillisToDate(millis: Long): String {
-    val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+@OptIn(ExperimentalMaterial3Api::class)
+private object PresentAndFutureDates : SelectableDates {
 
-    return formatter.format(Date(millis))
+    override fun isSelectableDate(utcTimeMillis: Long): Boolean =
+        super.isSelectableDate(utcTimeMillis)
+
+    override fun isSelectableYear(year: Int): Boolean {
+        val cal = Calendar.getInstance()
+
+        return cal.get(Calendar.YEAR) - 1 <= year
+    }
 }
