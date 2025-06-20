@@ -40,7 +40,6 @@ import com.mattrition.frutigertasks.activities.ui.common.ScreenBuilder
 import com.mattrition.frutigertasks.extensions.asDate
 import com.mattrition.frutigertasks.extensions.fromDateToMillis
 import com.mattrition.frutigertasks.extensions.reformatDate
-import com.mattrition.frutigertasks.extensions.removeTime
 import com.mattrition.frutigertasks.model.scheduler.Schedule
 import com.mattrition.frutigertasks.viewmodel.AddTaskViewModel
 import java.util.Calendar
@@ -204,17 +203,12 @@ private val repeatOptions =
 @OptIn(ExperimentalMaterial3Api::class)
 private object PresentAndFutureDates : SelectableDates {
 
-    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-        // Get the current time in UTC
-        val cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-        cal.removeTime()
-
-        return cal.timeInMillis <= utcTimeMillis
-    }
+    override fun isSelectableDate(utcTimeMillis: Long): Boolean =
+        super.isSelectableDate(utcTimeMillis)
 
     override fun isSelectableYear(year: Int): Boolean {
         val cal = Calendar.getInstance()
 
-        return cal.get(Calendar.YEAR) <= year
+        return cal.get(Calendar.YEAR) - 1 <= year
     }
 }
