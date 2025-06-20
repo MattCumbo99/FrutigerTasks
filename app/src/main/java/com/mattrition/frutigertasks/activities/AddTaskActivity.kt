@@ -28,8 +28,10 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.mattrition.frutigertasks.activities.ui.common.AeroTextField
 import com.mattrition.frutigertasks.activities.ui.common.ScreenBuilder
+import com.mattrition.frutigertasks.extensions.reformatDate
 import com.mattrition.frutigertasks.model.task.Difficulty
 import com.mattrition.frutigertasks.viewmodel.AddTaskViewModel
+import java.util.TimeZone
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -81,7 +83,11 @@ fun AddTaskActivity(
 
         @Composable fun BoxText(text: String) = Text(text, fontSize = 4.em)
 
-        val startDate = convertMillisToDate(addTaskViewModel.schedule.startDate)
+        val startDate =
+            addTaskViewModel.schedule.startDate.reformatDate(
+                "MM/dd/yyyy",
+                timeZone = TimeZone.getTimeZone("UTC")
+            )
 
         // Date and repeats
         Box(
@@ -96,7 +102,7 @@ fun AddTaskActivity(
             Column {
                 BoxText("Start date: $startDate")
                 // TODO Save repeat information
-                BoxText(addTaskViewModel.schedule.toString())
+                BoxText(addTaskViewModel.schedule.asRepeatString())
                 BoxText("Do not notify")
             }
         }

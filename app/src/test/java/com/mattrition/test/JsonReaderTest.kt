@@ -12,16 +12,16 @@ class JsonReaderTest {
     private val skillFile = "$resDirectory/default_skills.json"
 
     @Test
-    fun testReadStatistics() {
+    fun `should read from default statistics file`() {
         val results = JsonReader.readJsonArrayFromAsset<DefaultStatistic>(statFile)
 
-        assert(results.isNotEmpty())
+        assert(results.isNotEmpty()) { "Expected results to not be empty" }
     }
 
     @Test
-    fun testReadSkills() {
+    fun `should read from default skills file`() {
         val results = JsonReader.readJsonArrayFromAsset<DefaultSkill>(skillFile)
 
-        assert(results.isNotEmpty())
+        assert(results.isNotEmpty()) { "Expected results to not be empty" }
     }
 }

@@ -37,12 +37,15 @@ import androidx.navigation.NavController
 import com.mattrition.frutigertasks.activities.ui.common.AeroCheckmarkButton
 import com.mattrition.frutigertasks.activities.ui.common.AeroTextField
 import com.mattrition.frutigertasks.activities.ui.common.ScreenBuilder
+import com.mattrition.frutigertasks.extensions.asDate
+import com.mattrition.frutigertasks.extensions.fromDateToMillis
+import com.mattrition.frutigertasks.extensions.reformatDate
+import com.mattrition.frutigertasks.extensions.removeTime
 import com.mattrition.frutigertasks.model.scheduler.Schedule
 import com.mattrition.frutigertasks.viewmodel.AddTaskViewModel
-import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
-import java.util.Locale
+import java.util.TimeZone
 
 private const val DAY_IN_MILLIS = 86400000
 
@@ -57,14 +60,15 @@ fun DateAndRepeatsActivity(
     var showDatePicker by remember { mutableStateOf(false) }
     var repeatSelected by remember { mutableIntStateOf(0) }
 
-    val datePickerState = rememberDatePickerState()
-    val selectedDate =
-        datePickerState.selectedDateMillis?.let {
-            // For some reason, the date picker selects a day before what the user selected,
-            // so we need to add a whole day in milliseconds.
-            // FIXME Somehow convert these milliseconds into the correct time
-            it + DAY_IN_MILLIS
-        } ?: addTaskViewModel.schedule.startDate
+    val startDate = addTaskViewModel.schedule.startDate
+
+    val datePickerState =
+        rememberDatePickerState(
+            initialSelectedDateMillis = startDate.fromDateToMillis(),
+            selectableDates = PresentAndFutureDates
+        )
+
+    val selectedDate = datePickerState.selectedDateMillis?.asDate() ?: startDate
 
     fun setValues() {
         val mappedSchedule = repeatOptionsMap[repeatOptions[repeatSelected]]
@@ -88,7 +92,8 @@ fun DateAndRepeatsActivity(
         // TODO Allow the user to set the date by clicking the text box as well
         Box(modifier = Modifier.fillMaxWidth()) {
             AeroTextField(
-                value = convertMillisToDate(selectedDate),
+                value =
+                selectedDate.reformatDate("MM/dd/yyyy", timeZone = TimeZone.getTimeZone("UTC")),
                 label = "Start Date",
                 readOnly = true,
                 leadingIcon = {
@@ -163,7 +168,7 @@ fun DateAndRepeatsActivity(
 
         // Repeat configuration
         Button(onClick = { repeatDialogBuilder.show() }, modifier = modifier) {
-            Text(repeatOptionsMap[repeatOptions[repeatSelected]].toString())
+            Text(repeatOptionsMap[repeatOptions[repeatSelected]]?.asRepeatString() ?: "null")
         }
     }
 }
@@ -177,7 +182,7 @@ private val repeatOptionsMap =
         "Weekdays" to Schedule(onDaysOfWeek = Schedule.WEEKDAYS),
         "Weekends" to Schedule(onDaysOfWeek = Schedule.WEEKENDS),
         "1st day of month" to Schedule(onDayOfMonth = 1),
-        "Yearly" to Schedule(onDaysOfYear = setOf(Date().time))
+        "Yearly" to Schedule(onDaysOfYear = setOf(Date().time.asDate()))
     )
 
 private val reminderOptions =
@@ -196,23 +201,20 @@ private val repeatOptions =
         "Custom..."
     )
 
-fun convertMillisToDate(millis: Long): String {
-    val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
-
-    return formatter.format(Date(millis))
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 private object PresentAndFutureDates : SelectableDates {
 
     override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-        // TODO disable past days
-        return super.isSelectableDate(utcTimeMillis)
+        // Get the current time in UTC
+        val cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        cal.removeTime()
+
+        return cal.timeInMillis <= utcTimeMillis
     }
 
     override fun isSelectableYear(year: Int): Boolean {
         val cal = Calendar.getInstance()
 
-        return cal.get(Calendar.YEAR) >= year
+        return cal.get(Calendar.YEAR) <= year
     }
 }
