@@ -1,5 +1,6 @@
 package com.mattrition.frutigertasks.model
 
+import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -20,14 +21,30 @@ class JsonReader private constructor() {
                     File(asset).readLines()
                 } catch (ex: Exception) {
                     ex.printStackTrace()
-                    emptyList<String>()
+                    emptyList()
                 }
                     .joinToString("")
                     .trimIndent()
 
             val type = TypeToken.getParameterized(List::class.java, T::class.java).type
 
-            return Gson().fromJson<List<T>>(json, type)
+            return Gson().fromJson(json, type)
+        }
+
+        inline fun <reified T> readJsonArrayFromAsset(file: Int, context: Context): List<T> {
+            val json =
+                try {
+                    context.resources.openRawResource(file).reader().readLines()
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                    emptyList()
+                }
+                    .joinToString("")
+                    .trimIndent()
+
+            val type = TypeToken.getParameterized(List::class.java, T::class.java).type
+
+            return Gson().fromJson(json, type)
         }
     }
 }

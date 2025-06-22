@@ -41,6 +41,10 @@ class Navigator : ComponentActivity() {
                     composable(ScreenId.DATE_AND_REPEATS.name) {
                         DateAndRepeatsActivity(navController, it, addTaskViewModel)
                     }
+
+                    composable(ScreenId.SELECT_SKILLS.name) {
+                        SkillSelectActivity(navController, addTaskViewModel)
+                    }
                 }
             }
         }

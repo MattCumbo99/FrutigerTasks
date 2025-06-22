@@ -3,6 +3,8 @@ package com.mattrition.frutigertasks.activities.ui.common
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -56,6 +58,11 @@ fun ScreenBuilder(
         }
     ) { innerPadding ->
         // Insert the screen contents
-        WithBackground(modifier = Modifier.padding(innerPadding), imageId = imageId) { content() }
+        WithBackground(
+            modifier = Modifier.padding(innerPadding).verticalScroll(rememberScrollState()),
+            imageId = imageId
+        ) {
+            content()
+        }
     }
 }
