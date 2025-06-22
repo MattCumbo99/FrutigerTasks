@@ -26,9 +26,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import com.mattrition.frutigertasks.R
 import com.mattrition.frutigertasks.activities.ui.common.AeroTextField
 import com.mattrition.frutigertasks.activities.ui.common.ScreenBuilder
 import com.mattrition.frutigertasks.extensions.reformatDate
+import com.mattrition.frutigertasks.model.JsonReader
+import com.mattrition.frutigertasks.model.default.DefaultSkill
 import com.mattrition.frutigertasks.model.task.Difficulty
 import com.mattrition.frutigertasks.viewmodel.AddTaskViewModel
 import java.util.TimeZone
@@ -111,7 +114,7 @@ fun AddTaskActivity(
         val difficultyDialogBuilder =
             AlertDialog.Builder(LocalContext.current)
                 .setTitle("Difficulty")
-                .setPositiveButton("CANCEL") { dialog, which -> dialog.cancel() }
+                .setPositiveButton("CANCEL") { dialog, _ -> dialog.cancel() }
                 .setSingleChoiceItems(
                     Difficulty.entries.map { it.name }.toTypedArray(),
                     difficultySelection
@@ -131,13 +134,35 @@ fun AddTaskActivity(
                 // Save contents before moving to next screen
                 setValues()
 
-                // TODO Navigate to add skill screen
+                navController.navigate(ScreenId.SELECT_SKILLS.name)
             }
         ) {
-            BoxText("Add increasing skill(s)")
+            val skills = addTaskViewModel.increaseSkills
+            val text =
+                if (skills.entries.isEmpty()) {
+                    "Add increasing skill(s)"
+                } else {
+                    val skillSet =
+                        JsonReader.readJsonArrayFromAsset<DefaultSkill>(
+                            R.raw.default_skills,
+                            LocalContext.current
+                        )
+                            .toSet()
+                    val strSkills =
+                        skills.entries.map { (skillId, impact) ->
+                            val skillName = skillSet.first { it.id == skillId }.name
+                            val percent = (impact * 100).toInt()
+
+                            "$skillName: $percent%"
+                        }
+
+                    val increases = strSkills.joinToString(", ")
+                    "Increases skills: $increases"
+                }
+            BoxText(text)
         }
 
-        Box(
+        Box( // Maybe get rid of this?
             modifier =
             boxClickable {
                 // Save contents before moving to next screen
