@@ -57,7 +57,13 @@ fun DateAndRepeatsActivity(
     addTaskViewModel: AddTaskViewModel
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
-    var repeatSelected by remember { mutableIntStateOf(0) }
+    var repeatSelected by remember {
+        val presetSchedules = repeatOptionsMap.values.toList()
+        val scheduleIndex =
+            presetSchedules.indexOf(addTaskViewModel.schedule).takeUnless { it == -1 }
+
+        mutableIntStateOf(scheduleIndex ?: 0)
+    }
 
     val startDate = addTaskViewModel.schedule.startDate
 
@@ -155,7 +161,7 @@ fun DateAndRepeatsActivity(
         val repeatDialogBuilder =
             AlertDialog.Builder(LocalContext.current)
                 .setTitle("Repeat mode")
-                .setPositiveButton("CANCEL") { dialog, which -> dialog.cancel() }
+                .setPositiveButton("CANCEL") { dialog, _ -> dialog.cancel() }
                 .setSingleChoiceItems(repeatOptionsMap.keys.toTypedArray(), repeatSelected) {
                         dialog,
                         which
@@ -167,7 +173,10 @@ fun DateAndRepeatsActivity(
 
         // Repeat configuration
         Button(onClick = { repeatDialogBuilder.show() }, modifier = modifier) {
-            Text(repeatOptionsMap[repeatOptions[repeatSelected]]?.asRepeatString() ?: "null")
+            val selectedRepeatable = repeatOptionsMap[repeatOptions[repeatSelected]]
+            val repeatText = selectedRepeatable?.asRepeatString()
+
+            Text(repeatText ?: "null")
         }
     }
 }
@@ -202,13 +211,11 @@ private val repeatOptions =
 
 @OptIn(ExperimentalMaterial3Api::class)
 private object PresentAndFutureDates : SelectableDates {
-
-    override fun isSelectableDate(utcTimeMillis: Long): Boolean =
-        super.isSelectableDate(utcTimeMillis)
-
     override fun isSelectableYear(year: Int): Boolean {
         val cal = Calendar.getInstance()
+        val currentYear = cal.get(Calendar.YEAR)
 
-        return cal.get(Calendar.YEAR) - 1 <= year
+        // Allow only a 1 year min and max
+        return currentYear - 1 <= year && year <= currentYear + 1
     }
 }

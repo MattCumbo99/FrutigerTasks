@@ -42,8 +42,8 @@ fun SkillSelectActivity(navController: NavController, addTaskViewModel: AddTaskV
         navigateBack = { navController.popBackStack() },
         actions = {
             AeroCheckmarkButton {
-                addTaskViewModel.increaseSkills.clear()
-                addTaskViewModel.increaseSkills.putAll(skillsChanged)
+                addTaskViewModel.skillIncreases.clear()
+                addTaskViewModel.skillIncreases.putAll(skillsChanged)
                 navController.popBackStack()
             }
         }
@@ -56,10 +56,10 @@ fun SkillSelectActivity(navController: NavController, addTaskViewModel: AddTaskV
 
         defaultSkills.forEach { skill ->
             var checked by remember {
-                mutableStateOf(addTaskViewModel.increaseSkills.containsKey(skill.id))
+                mutableStateOf(addTaskViewModel.skillIncreases.containsKey(skill.id))
             }
             val initialSliderPosition =
-                addTaskViewModel.increaseSkills[skill.id]?.let { (it * 100).toInt() } ?: 100
+                addTaskViewModel.skillIncreases[skill.id]?.let { (it * 100).toInt() } ?: 100
             var sliderPosition by remember { mutableIntStateOf(initialSliderPosition) }
 
             Box(

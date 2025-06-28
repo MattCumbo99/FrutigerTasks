@@ -45,7 +45,9 @@ fun AddTaskActivity(
 ) {
     var taskName by remember { mutableStateOf(addTaskViewModel.name) }
     var taskDesc by remember { mutableStateOf(addTaskViewModel.description) }
-    var difficultySelection by remember { mutableIntStateOf(1) }
+    var difficultySelection by remember {
+        mutableIntStateOf(difficulties.indexOf(addTaskViewModel.difficulty))
+    }
 
     fun setValues() {
         addTaskViewModel.name = taskName
@@ -77,15 +79,6 @@ fun AddTaskActivity(
 
         AeroTextField(label = "Description", value = taskDesc, onValueChange = { taskDesc = it })
 
-        fun boxClickable(clicked: () -> Unit) = Modifier.padding(5.dp) // Outer padding
-            .fillMaxWidth()
-            .clickable { clicked() }
-            .border(BorderStroke(2.dp, Color.Black))
-            .background(Color.Gray)
-            .padding(10.dp) // Inner content padding
-
-        @Composable fun BoxText(text: String) = Text(text, fontSize = 4.em)
-
         val startDate =
             addTaskViewModel.schedule.startDate.reformatDate(
                 "MM/dd/yyyy",
@@ -95,7 +88,7 @@ fun AddTaskActivity(
         // Date and repeats
         Box(
             modifier =
-            boxClickable {
+            Modifier.boxClickable {
                 // Save contents before moving to next screen
                 setValues()
 
@@ -104,7 +97,6 @@ fun AddTaskActivity(
         ) {
             Column {
                 BoxText("Start date: $startDate")
-                // TODO Save repeat information
                 BoxText(addTaskViewModel.schedule.asRepeatString())
                 BoxText("Do not notify")
             }
@@ -116,28 +108,30 @@ fun AddTaskActivity(
                 .setTitle("Difficulty")
                 .setPositiveButton("CANCEL") { dialog, _ -> dialog.cancel() }
                 .setSingleChoiceItems(
-                    Difficulty.entries.map { it.name }.toTypedArray(),
+                    difficulties.map { it.name }.toTypedArray(),
                     difficultySelection
                 ) { dialog, which ->
                     difficultySelection = which
+                    addTaskViewModel.difficulty = difficulties[which]
                     dialog.cancel()
                 }
                 .create()
 
         Button(onClick = { difficultyDialogBuilder.show() }, modifier = Modifier.fillMaxWidth()) {
-            Text("Difficulty: ${Difficulty.entries[difficultySelection].name}")
+            val diffText = difficulties[difficultySelection].name
+            Text("Difficulty: $diffText")
         }
 
         Box(
             modifier =
-            boxClickable {
+            Modifier.boxClickable {
                 // Save contents before moving to next screen
                 setValues()
 
                 navController.navigate(ScreenId.SELECT_SKILLS.name)
             }
         ) {
-            val skills = addTaskViewModel.increaseSkills
+            val skills = addTaskViewModel.skillIncreases
             val text =
                 if (skills.entries.isEmpty()) {
                     "Add increasing skill(s)"
@@ -153,7 +147,7 @@ fun AddTaskActivity(
                             val skillName = skillSet.first { it.id == skillId }.name
                             val percent = (impact * 100).toInt()
 
-                            "$skillName: $percent%"
+                            "$skillName $percent%"
                         }
 
                     val increases = strSkills.joinToString(", ")
@@ -161,17 +155,16 @@ fun AddTaskActivity(
                 }
             BoxText(text)
         }
-
-        Box( // Maybe get rid of this?
-            modifier =
-            boxClickable {
-                // Save contents before moving to next screen
-                setValues()
-
-                // TODO Navigate to add skill screen
-            }
-        ) {
-            BoxText("Add decreasing skill(s)")
-        }
     }
 }
+
+private val difficulties = Difficulty.entries.toList()
+
+private fun Modifier.boxClickable(clicked: () -> Unit) = this.padding(5.dp) // Outer padding
+    .fillMaxWidth()
+    .clickable { clicked() }
+    .border(BorderStroke(2.dp, Color.Black))
+    .background(Color.Gray)
+    .padding(10.dp) // Inner content padding
+
+@Composable private fun BoxText(text: String) = Text(text, fontSize = 4.em)

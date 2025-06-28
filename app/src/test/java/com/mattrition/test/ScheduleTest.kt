@@ -18,13 +18,13 @@ class ScheduleTest {
 
     private val utcTimezone = TimeZone.getTimeZone("UTC")
 
-    /** A calendar representing January 27, 2025 */
+    /** A calendar representing Monday, January 27 2025 */
     private val pastCalendar = Calendar.getInstance(utcTimezone)
 
-    /** A calendar representing February 1, 2025 */
+    /** A calendar representing Saturday, February 1 2025 */
     private val presentCalendar = Calendar.getInstance(utcTimezone)
 
-    /** A calendar representing February 6, 2025 */
+    /** A calendar representing Thursday, February 6 2025 */
     private val futureCalendar = Calendar.getInstance(utcTimezone)
 
     @Before
@@ -166,5 +166,15 @@ class ScheduleTest {
                 assert(!isActive) { "$EXPECT_FALSE for $currentDate. Valid dates: $validDates" }
             }
         }
+    }
+
+    @Test
+    fun `repeat string should show correct day of the week from start date`() {
+        val schedule = Schedule(startDate = presentCalendar.timeInMillis.asDate(), dailyRepeat = 7)
+
+        val expected = "Repeats on Saturdays"
+        val actual = schedule.asRepeatString()
+
+        assert(expected == actual) { "Expected [$expected] but was [$actual]" }
     }
 }
