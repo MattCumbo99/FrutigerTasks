@@ -25,6 +25,7 @@ import java.util.TimeZone
  * @property onDaysOfYear A set of dates containing days of the year this schedule should trigger
  *   on.
  * @property endDate Date to stop the schedule at.
+ * @property completed If this schedule has been marked as complete.
  */
 class Schedule(
     var startDate: String = Date().time.asDate(timeZone = TimeZone.getDefault()),
@@ -32,7 +33,8 @@ class Schedule(
     var onDaysOfWeek: Set<DayOfWeek> = emptySet(),
     var onDayOfMonth: Int? = null,
     var onDaysOfYear: Set<String> = emptySet(),
-    var endDate: String? = null
+    var endDate: String? = null,
+    var completed: Boolean = false
 ) {
     companion object {
         @RequiresApi(Build.VERSION_CODES.O)
@@ -103,6 +105,7 @@ class Schedule(
         val currentDayOfMonth = currentCalendar.get(Calendar.DAY_OF_MONTH)
 
         return hasNotEnded &&
+            !completed &&
             hasStarted &&
             (
                 isInitialDay ||
@@ -113,6 +116,16 @@ class Schedule(
                 )
     }
 
+    /**
+     * Shows when this schedule activates as a string.
+     *
+     * Examples:
+     * 1. _Repeats on Saturdays_
+     * 2. _Repeats daily_
+     * 3. _Repeats every year on Jun 6_
+     *
+     * @return String version of this schedule
+     */
     @RequiresApi(Build.VERSION_CODES.O)
     fun asRepeatString(): String {
         val repeatParams = mutableListOf<String>()
@@ -121,7 +134,7 @@ class Schedule(
                 when (days) {
                     1 -> "daily"
                     7 -> {
-                        val tempCal = Calendar.getInstance()
+                        val tempCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
                         tempCal.time = Date(startDate.fromDateToMillis())
                         tempCal.removeTime()
 
@@ -136,7 +149,15 @@ class Schedule(
 
         if (onDaysOfWeek.isNotEmpty()) {
             val daysInWeek =
-                onDaysOfWeek.joinToString(", ") { dayEnum -> "${dayEnum.name}s".sentenceCase() }
+                when (onDaysOfWeek) {
+                    WEEKENDS -> "weekends"
+                    WEEKDAYS -> "weekdays"
+                    else -> {
+                        onDaysOfWeek.joinToString(", ") { dayEnum ->
+                            "${dayEnum.name}s".sentenceCase()
+                        }
+                    }
+                }
 
             repeatParams.add("on $daysInWeek")
         }
